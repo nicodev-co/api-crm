@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
-use Illuminate\Http\Request;
+use Dotenv\Exception\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProjectController extends Controller
@@ -20,52 +21,116 @@ class ProjectController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(ProjectRequest $request)
     {
-        $project = Project::create($request->validated());
+        try {
+            $project = Project::create($request->validated());
 
-        return response()->json(new ProjectResource($project), Response::HTTP_CREATED);
+            return response()->json(new ProjectResource($project), Response::HTTP_CREATED);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'title' => 'Validation Error',
+                    'detail' => $e->errors(),
+                ],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'title' => 'Server Error',
+                    'detail' => 'An unexpected error occurred. Please try again later.',
+                ],
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Project $project)
+    public function show($id)
     {
-        //
-    }
+        try {
+            $project = Project::findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Project $project)
-    {
-        //
+            return response()->json(new ProjectResource($project), Response::HTTP_ACCEPTED);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_NOT_FOUND,
+                    'title' => 'Resource not found',
+                    'detail' => 'The requested project does not exist',
+                ],
+            ], Response::HTTP_NOT_FOUND);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Project $project)
+    public function update(ProjectRequest $request, $id)
     {
-        //
+        try {
+            $project = Project::findOrFail($id);
+            $project->update($request->validated());
+
+            return response()->json(['data' => new ProjectResource($project)], Response::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_NOT_FOUND,
+                    'title' => 'Resource not found',
+                    'detail' => 'The requested project does not exist',
+                ],
+            ], Response::HTTP_NOT_FOUND);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'title' => 'Validation Error',
+                    'detail' => $e->errors(),
+                ],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'title' => 'Server Error',
+                    'detail' => 'An unexpected error occurred. Please try again later.',
+                ],
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project)
+    public function destroy($id)
     {
-        //
+        try {
+            $project = Project::findOrFail($id);
+            $project->delete();
+
+            return response()->json([], Response::HTTP_NO_CONTENT);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_NOT_FOUND,
+                    'title' => 'Resource not found',
+                    'detail' => 'The requested project does not exist',
+                ],
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'errors' => [
+                    'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'title' => 'Server Error',
+                    'detail' => 'An unexpected error occurred. Please try again later.',
+                ],
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
