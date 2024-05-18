@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
-use Dotenv\Exception\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProjectController extends Controller
