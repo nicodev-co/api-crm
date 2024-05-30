@@ -27,7 +27,7 @@ class ProjectRequest extends FormRequest
             'description' => 'string|max:1000',
             'start_date' => 'date',
             'end_date' => 'date',
-            'status' => 'required|string|max:10',
+            'status' => 'required|boolean',
             'name_tasks' => 'string|max:50',
         ];
     }
