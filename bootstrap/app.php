@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function(ValidationException $e) {
+        $exceptions->render(function (ValidationException $e) {
             return response()->json([
                 'errors' => [
                     'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
@@ -36,19 +36,19 @@ return Application::configure(basePath: dirname(__DIR__))
                 ],
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         });
-        $exceptions->render(function(NotFoundHttpException $e) {
+        $exceptions->render(function (NotFoundHttpException $e) {
             if ($e->getPrevious() instanceof ModelNotFoundException) {
                 return response()->json([
                     'errors' => [
                         'status' => Response::HTTP_NOT_FOUND,
                         'title' => 'Resource not found',
-                        'detail' => 'The requested '. str()->lower(class_basename($e->getPrevious()->getModel())) .' does not exist',
+                        'detail' => 'The requested '.str()->lower(class_basename($e->getPrevious()->getModel())).' does not exist',
                     ],
                 ], Response::HTTP_NOT_FOUND);
             }
         });
 
-        $exceptions->render(function(Throwable $e) {
+        $exceptions->render(function (Throwable $e) {
             return response()->json([
                 'errors' => [
                     'status' => Response::HTTP_INTERNAL_SERVER_ERROR,

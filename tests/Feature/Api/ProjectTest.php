@@ -89,13 +89,13 @@ class ProjectTest extends TestCase
             ]);
     }
 
-    public function test_update(): void 
+    public function test_update(): void
     {
         $user = User::factory()->create();
         Sanctum::actingAs($user);
 
         $project = Project::factory()->create();
-        
+
         $data = [
             'project_manager_id' => $user->id,
             'name' => 'Updated name',
@@ -111,7 +111,7 @@ class ProjectTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_destroy(): void 
+    public function test_destroy(): void
     {
         Sanctum::actingAs(User::factory()->create());
 
@@ -119,8 +119,8 @@ class ProjectTest extends TestCase
 
         $response = $this->deleteJson("api/projects/$project->id");
 
-        $this->assertDatabaseMissing('projects',[
-            'id' => $project->id
+        $this->assertDatabaseMissing('projects', [
+            'id' => $project->id,
         ]);
 
         $response->assertNoContent();
