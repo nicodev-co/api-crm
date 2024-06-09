@@ -22,6 +22,7 @@ class TaskTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
+        User::factory(10)->create();
         Project::factory(5)->create();
         Task::factory(10)->create();
 
@@ -40,8 +41,13 @@ class TaskTest extends TestCase
                             'end_date',
                             'status',
                         ],
+                        'relationships' => [
+                            'users' => [],
+                        ],
                     ],
                 ],
+                'links' => [],
+                'meta' => [],
             ]);
     }
 
@@ -50,6 +56,7 @@ class TaskTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
 
         $project = Project::factory()->create();
+        $users = User::factory(3)->create();
 
         $data = [
             'project_id' => $project->id,
@@ -58,6 +65,7 @@ class TaskTest extends TestCase
             'start_date' => $this->faker->date,
             'end_date' => $this->faker->date,
             'status' => $this->faker->boolean,
+            'users_id' => $users->pluck('id'),
         ];
 
         $response = $this->postJson('api/tasks', $data);
@@ -69,6 +77,7 @@ class TaskTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
+        User::factory(5)->create();
         Project::factory()->create();
         $task = Task::factory()->create();
 
@@ -86,6 +95,7 @@ class TaskTest extends TestCase
                         'end_date',
                         'status',
                     ],
+                    'relationships' => [],
                 ],
             ]);
     }
@@ -94,8 +104,10 @@ class TaskTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
+        User::factory(3)->create();
         $project = Project::factory()->create();
         $task = Task::factory()->create();
+        $users = User::all()->random(rand(1, 3));
 
         $data = [
             'project_id' => $project->id,
@@ -104,6 +116,7 @@ class TaskTest extends TestCase
             'start_date' => $this->faker->date,
             'end_date' => $this->faker->date,
             'status' => $this->faker->boolean,
+            'users_id' => $users->pluck('id'),
         ];
 
         $response = $this->putJson("api/tasks/$task->id", $data);
@@ -115,6 +128,7 @@ class TaskTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
+        User::factory(5)->create();
         Project::factory()->create();
         $task = Task::factory()->create();
 

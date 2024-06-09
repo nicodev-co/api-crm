@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TaskController extends Controller
@@ -16,7 +15,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return TaskResource::collection(Task::all());
+        $tasks = Task::with('users')->paginate();
+
+        return TaskResource::collection($tasks);
     }
 
     /**
@@ -26,6 +27,10 @@ class TaskController extends Controller
     {
         $task = Task::create($request->validated());
 
+        if ($request->has('users_id')) {
+            $task->users()->sync($request->input('users_id'));
+        }
+
         return response()->json(new TaskResource($task), Response::HTTP_CREATED);
     }
 
@@ -34,6 +39,8 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
+        $task->load('users');
+
         return new TaskResource($task);
     }
 
@@ -43,6 +50,10 @@ class TaskController extends Controller
     public function update(TaskRequest $request, Task $task)
     {
         $task->update($request->validated());
+
+        if ($request->has('users_id')) {
+            $task->users()->sync($request->input('users_id'));
+        }
 
         return response()->json(new TaskResource($task), Response::HTTP_OK);
     }

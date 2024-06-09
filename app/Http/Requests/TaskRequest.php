@@ -28,6 +28,7 @@ class TaskRequest extends FormRequest
             'start_date' => 'date',
             'end_date' => 'date',
             'status' => 'required|boolean',
+            'users_id' => 'array|exists:users,id',
         ];
     }
 }
